@@ -61,6 +61,15 @@
   /* ---------- Layout shell ---------- */
   .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
   .page-head{padding:28px 0 8px;}
+  .page-head-row{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    flex-wrap:wrap;
+  }
+  .talk-expert-btn{flex:none;}
+  @media (max-width:560px){
+    .page-head-row{flex-direction:column;align-items:flex-start;}
+    .talk-expert-btn{width:100%;text-align:center;}
+  }
   .eyebrow{
     font-size:12px;text-transform:uppercase;letter-spacing:.14em;
     color:var(--gold-600);font-weight:700;margin-bottom:6px;
@@ -300,9 +309,12 @@
 <body>
 
   <div class="wrap">
-    <div class="page-head">
-      <div class="eyebrow">Investment Calculators</div>
-      <h1>CAGR Calculator</h1>
+    <div class="page-head page-head-row">
+      <div>
+        <div class="eyebrow">Pmsbazaar Investment Calculator</div>
+        <h1>CAGR Calculator</h1>
+      </div>
+      <button class="cta-pill talk-expert-btn" type="button">Talk To Expert</button>
     </div>
 
     <div class="layout">
@@ -330,7 +342,6 @@
                 <input type="number" id="years" value="3" inputmode="decimal" step="0.1">
                 <span class="suffix">Years</span>
               </div>
-              <div class="field-hint">Fractional years are supported, e.g. 2.5</div>
             </div>
           </div>
 
@@ -373,6 +384,7 @@
           <h3>More Calculators</h3>
           <ul class="side-list">
             <li><a href="#">PMS Fee Calculator <span class="arrow">→</span></a></li>
+            <li><a href="#">New calculators are coming soon. <span class="arrow"></span></a></li>
           </ul>
         </div>
       </div>
@@ -380,12 +392,11 @@
 
     <!-- Article / FAQ -->
     <div class="article">
-      <p>Calculate Compound Annual Growth Rate (CAGR) instantly with this free online CAGR calculator to measure the annual return of your investment over any period. Enter beginning value, ending value, and number of years to get accurate CAGR percentage, absolute return, and compare performance across mutual funds, stocks, or assets.</p>
-
+      <h2>FAQ</h2>
       <div class="faq-accordion">
 
         <div class="faq-item">
-          <button class="faq-question" type="button" aria-expanded="true">
+          <button class="faq-question" type="button" aria-expanded="false">
             <span>What is CAGR?</span>
             <span class="faq-arrow">⌄</span>
           </button>
@@ -495,8 +506,6 @@
         </div>
 
       </div>
-
-      <p>Use this CAGR calculator to evaluate long-term investment growth, compare mutual funds or stocks against benchmarks, and make informed decisions based on true annualized returns. Start calculating now and choose investments that deliver consistent compounding power aligned with your financial goals.</p>
     </div>
 
   </div>
