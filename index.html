@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAGR Calculator | PMSBazaar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon-900:#5A0F27;
+    --maroon-700:#7A1834;
+    --maroon-500:#8F1F3E;
+    --gold-600:#B8862F;
+    --gold-500:#C89B3C;
+    --gold-200:#E9CE8F;
+    --cream:#FBF6EC;
+    --paper:#FFFFFF;
+    --ink-900:#291017;
+    --ink-600:#5E4A52;
+    --ink-400:#8A7780;
+    --line:#EADFC9;
+    --good:#2C6E49;
+    --radius:14px;
+    --shadow: 0 12px 32px -16px rgba(90,15,39,0.28);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink-900);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--maroon-900);
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  img,svg{display:block;max-width:100%;}
+
+  /* ---------- Buttons ---------- */
+  .cta-pill{
+    background:var(--maroon-900);color:#fff;border:none;
+    padding:11px 20px;border-radius:999px;font-weight:600;font-size:14px;
+    cursor:pointer;white-space:nowrap;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .cta-pill:hover{background:var(--maroon-700);transform:translateY(-1px);}
+  .cta-pill.ghost{
+    background:transparent;color:var(--maroon-900);border:1.5px solid var(--maroon-900);
+  }
+  .cta-pill.ghost:hover{background:var(--maroon-900);color:#fff;}
+
+  /* ---------- Layout shell ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .page-head{padding:28px 0 8px;}
+  .eyebrow{
+    font-size:12px;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--gold-600);font-weight:700;margin-bottom:6px;
+  }
+  .page-head h1{font-size:clamp(28px,4vw,40px);}
+  .page-head p{color:var(--ink-600);margin-top:8px;font-size:15.5px;max-width:640px;}
+
+  .layout{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 300px;
+    gap:28px;
+    padding:20px 0 48px;
+    align-items:start;
+  }
+
+  /* ---------- Calculator card ---------- */
+  .calc-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .calc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .calc-inputs{
+    padding:32px 32px 28px;
+    border-right:1px solid var(--line);
+  }
+  .field{margin-bottom:22px;}
+  .field label{
+    display:block;font-size:13px;font-weight:600;color:var(--ink-600);
+    margin-bottom:8px;letter-spacing:.01em;
+  }
+  .field-box{
+    display:flex;align-items:center;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    background:var(--cream);
+    overflow:hidden;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field-box:focus-within{
+    border-color:var(--gold-600);
+    box-shadow:0 0 0 3px rgba(200,155,60,0.18);
+  }
+  .field-box .prefix{
+    padding:0 12px;color:var(--maroon-700);font-weight:600;font-size:15px;
+    border-right:1px solid var(--line);height:48px;display:flex;align-items:center;
+    background:#F4E9D4;
+  }
+  .field-box input{
+    border:none;background:transparent;outline:none;
+    padding:12px 14px;font-size:16px;font-weight:600;color:var(--ink-900);
+    width:100%;font-family:'IBM Plex Mono',monospace;
+  }
+  .field-box .suffix{
+    padding:0 14px;color:var(--ink-400);font-size:13px;white-space:nowrap;
+  }
+  .field-hint{font-size:12px;color:var(--ink-400);margin-top:6px;}
+
+  .calc-results{
+    padding:32px;
+    background:linear-gradient(165deg,var(--maroon-900),var(--maroon-700) 70%);
+    color:#fff;
+    display:flex;flex-direction:column;
+    gap:0;
+    position:relative;
+    overflow:hidden;
+  }
+  .calc-results::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 85% 0%, rgba(232,198,122,0.25), transparent 55%);
+    pointer-events:none;
+  }
+  .result-headline{
+    position:relative;
+  }
+  .result-headline .label{font-size:12.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold-200);font-weight:700;}
+  .result-headline .value{
+    font-family:'Fraunces',serif;font-weight:600;font-size:44px;line-height:1.1;margin-top:6px;
+  }
+  .growth-curve{margin:18px 0 14px;position:relative;height:64px;}
+  .stat-row{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:14px 0;border-top:1px solid rgba(255,255,255,0.18);
+    position:relative;
+  }
+  .stat-row:last-child{padding-bottom:0;}
+  .stat-row .k{font-size:12.5px;color:rgba(255,255,255,0.75);}
+  .stat-row .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    display:flex;flex-direction:column;gap:20px;
+  }
+  .side-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .side-card h3{
+    font-size:14px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--maroon-900);margin-bottom:14px;font-family:'Inter',sans-serif;font-weight:700;
+  }
+  .side-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+  .side-list li{border-top:1px solid var(--line);}
+  .side-list li:first-child{border-top:none;}
+  .side-list a{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 2px;font-size:14px;color:var(--ink-700,var(--ink-900));
+    text-decoration:none;transition:color .15s ease, padding-left .15s ease;
+  }
+  .side-list a:hover{color:var(--maroon-700);padding-left:4px;}
+  .side-list a .arrow{color:var(--gold-600);opacity:0;transition:opacity .15s ease;}
+  .side-list a:hover .arrow{opacity:1;}
+  .side-card.tinted{
+    background:linear-gradient(160deg,#FBF0DA,#F4E4C4);
+    border-color:var(--gold-200);
+  }
+  .side-card.tinted p{font-size:13.5px;color:var(--ink-600);margin:0 0 14px;line-height:1.5;}
+  .side-card.tinted .cta-pill{width:100%;text-align:center;}
+
+  /* ---------- Article ---------- */
+  .article{
+    padding:8px 0 40px;
+    max-width:760px;
+  }
+  .article h2{font-size:26px;margin:40px 0 14px;}
+  .article h2:first-child{margin-top:0;}
+  .article p{color:var(--ink-600);line-height:1.7;font-size:15.5px;margin:0 0 14px;}
+  .formula-box{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-left:4px solid var(--gold-600);
+    border-radius:10px;
+    padding:20px 22px;
+    margin:18px 0;
+  }
+  .formula-box .f{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:17px;
+    color:var(--maroon-900);margin-bottom:10px;
+  }
+  .formula-box ul{margin:0;padding-left:18px;color:var(--ink-600);font-size:14.5px;line-height:1.8;}
+  .example-box{
+    background:#F4E9D4;
+    border-radius:10px;
+    padding:18px 22px;margin:18px 0;
+    font-size:14.5px;color:var(--ink-700,var(--ink-900));line-height:1.8;
+  }
+  .example-box strong{color:var(--maroon-900);}
+  .adv-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;
+  }
+  .adv-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+  }
+  .adv-card .n{
+    font-family:'Fraunces',serif;font-weight:600;color:var(--gold-600);font-size:13px;margin-bottom:6px;
+  }
+  .adv-card p{margin:0;font-size:14px;color:var(--ink-600);line-height:1.6;}
+
+  /* ---------- FAQ Accordion ---------- */
+  .faq-accordion{
+    margin:22px 0 6px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--paper);
+  }
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-item:last-child{border-bottom:none;}
+  .faq-question{
+    width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:transparent;border:none;cursor:pointer;
+    padding:18px 22px;
+    text-align:left;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:16.5px;
+    color:var(--maroon-900);
+    transition:background .15s ease;
+  }
+  .faq-question:hover{background:#FBF3E0;}
+  .faq-question .faq-arrow{
+    flex:none;
+    font-size:20px;
+    line-height:1;
+    color:var(--gold-600);
+    transition:transform .25s ease;
+    transform:rotate(0deg);
+  }
+  .faq-question[aria-expanded="true"] .faq-arrow{
+    transform:rotate(180deg);
+  }
+  .faq-answer{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+  }
+  .faq-answer-inner{
+    padding:0 22px 20px;
+  }
+  .faq-answer-inner p{color:var(--ink-600);line-height:1.7;font-size:15px;margin:0 0 12px;}
+  .faq-answer-inner p:last-child{margin-bottom:0;}
+  .faq-answer-inner ul{margin:0 0 12px;padding-left:20px;color:var(--ink-600);font-size:14.5px;line-height:1.8;}
+  .faq-answer-inner ul:last-child{margin-bottom:0;}
+  .faq-answer-inner .formula-box,
+  .faq-answer-inner .example-box{margin:14px 0;}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:940px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;
+    }
+  }
+  @media (max-width:720px){
+    .calc-grid{grid-template-columns:1fr;}
+    .calc-inputs{border-right:none;border-bottom:1px solid var(--line);padding:26px 22px;}
+    .calc-results{padding:26px 22px;}
+    .adv-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .cta-pill{padding:9px 14px;font-size:13px;}
+    .wrap{padding:0 16px;}
+    .sidebar{grid-template-columns:1fr;}
+    .page-head h1{font-size:26px;}
+    .result-headline .value{font-size:34px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="page-head">
+      <div class="eyebrow">Investment Calculators</div>
+      <h1>CAGR Calculator</h1>
+    </div>
+
+    <div class="layout">
+      <!-- Calculator -->
+      <div class="calc-card">
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <div class="field">
+              <label for="begin">Beginning Value</label>
+              <div class="field-box">
+                <span class="prefix">₹</span>
+                <input type="number" id="begin" value="15000" inputmode="decimal">
+              </div>
+            </div>
+            <div class="field">
+              <label for="end">Ending Value</label>
+              <div class="field-box">
+                <span class="prefix">₹</span>
+                <input type="number" id="end" value="25000" inputmode="decimal">
+              </div>
+            </div>
+            <div class="field">
+              <label for="years">Number of Years of Investment</label>
+              <div class="field-box">
+                <input type="number" id="years" value="3" inputmode="decimal" step="0.1">
+                <span class="suffix">Years</span>
+              </div>
+              <div class="field-hint">Fractional years are supported, e.g. 2.5</div>
+            </div>
+          </div>
+
+          <div class="calc-results">
+            <div class="result-headline">
+              <div class="label">CAGR (Annual Growth Rate)</div>
+              <div class="value" id="out-cagr">18.56%</div>
+            </div>
+
+            <div class="growth-curve">
+              <svg viewBox="0 0 260 64" width="100%" height="64" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#E8C67A" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#E8C67A" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path id="curvePathFill" d="M0,54 C60,52 120,40 180,22 C210,12 240,6 260,2 L260,64 L0,64 Z" fill="url(#curveFill)"/>
+                <path id="curvePath" d="M0,54 C60,52 120,40 180,22 C210,12 240,6 260,2" fill="none" stroke="#E8C67A" stroke-width="2.5" stroke-linecap="round"/>
+                <circle id="curveStart" cx="0" cy="54" r="3.5" fill="#fff"/>
+                <circle id="curveEnd" cx="260" cy="2" r="4" fill="#fff"/>
+              </svg>
+            </div>
+
+            <div class="stat-row">
+              <span class="k">Total Returns (%)</span>
+              <span class="v" id="out-return-pct">66.67%</span>
+            </div>
+            <div class="stat-row">
+              <span class="k">Total Return Amount</span>
+              <span class="v" id="out-return-amt">₹10,000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="side-card">
+          <h3>More Calculators</h3>
+          <ul class="side-list">
+            <li><a href="#">PMS Fee Calculator <span class="arrow">→</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article / FAQ -->
+    <div class="article">
+      <p>Calculate Compound Annual Growth Rate (CAGR) instantly with this free online CAGR calculator to measure the annual return of your investment over any period. Enter beginning value, ending value, and number of years to get accurate CAGR percentage, absolute return, and compare performance across mutual funds, stocks, or assets.</p>
+
+      <div class="faq-accordion">
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="true">
+            <span>What is CAGR?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Compound Annual Growth Rate or CAGR refers to the annual growth of an investment over a specific duration. The value of the investment is assumed to be compounded over the period. Unlike the absolute return, CAGR takes the time value of money into the account. As a result, it can reflect the actual returns of an investment generated over a year.</p>
+              <p>CAGR shows you how an investment grows in value over a period. In simple words, it shows you how much your investment has earned each year for a given time interval.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>What is a CAGR Calculator?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>The Compound Annual Growth rate (CAGR) calculator is a utility tool to calculate the compound annual growth rate of your investment over some time. You will have to enter the value of the initial investment, the expected final value of the investment and the number of years to calculate the CAGR. The CAGR calculator has a formula box where you select the beginning and the ending value of the investment. You must also select the number of years of the investment. The CAGR calculator will show you the annual rate of growth of your investment. You can use CAGR to compare the return on investment against a benchmark.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>How Does a CAGR Calculator Work?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>The CAGR can be calculated using the following mathematical formula:</p>
+              <div class="formula-box">
+                <div class="f">CAGR = [(Ending Value/Beginning Value) ^ (1/N)] − 1</div>
+                <ul>
+                  <li><strong>CAGR</strong> — Compound Annual Growth Rate</li>
+                  <li><strong>Beginning Value</strong> — Beginning Value of the Investment</li>
+                  <li><strong>Ending Value</strong> — Ending Value of the Investment</li>
+                  <li><strong>N</strong> — Number of Years of Investment</li>
+                </ul>
+              </div>
+              <p>The above formula depends on three variables, namely, the beginning value, the ending value, and the number of years (N). When you enter the three variables, the CAGR calculator will give you the CAGR (in percentage %), total returns &amp; total return amount instantly.</p>
+              <div class="example-box">
+                <strong>For Example:</strong> the initial value of your investment is Rs 15,000, and the final value is Rs 25,000 in three years (N= 3 years).<br>
+                CAGR = (25,000/15,000)^(⅓) − 1<br>
+                CAGR = <strong>18.56%</strong>
+              </div>
+              <p>The calculator also shows the absolute return of the investment using the formulae End Value – Beginning Value/Beginning Value * 100. For the same example you have: (25000 – 15000)/15000 * 100 = <strong>66.66%</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>How to Use the CAGR Calculator?</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>The calculator is a simulation that helps you to calculate the compound annual growth rate of your investment. It allows you to decide if the investment yields a significant return over time.</p>
+              <ul>
+                <li>You must fill in the initial value of the investment.</li>
+                <li>You then fill the final value of the investment and the number of years of the investment.</li>
+                <li>The CAGR calculator shows you the Compound Annual Growth Rate.</li>
+              </ul>
+              <p>You can also use the CAGR calculator to calculate the absolute return on the investment.</p>
+              <ul>
+                <li>You enter the beginning and the ending value of the investment.</li>
+                <li>The CAGR calculator shows you the absolute rate of return on the investment.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Advantages of Using the CAGR Calculator</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>You can use the CAGR Calculator to make the right investment decisions. It helps you to determine the annual rate of return of your investments. You may compare the returns from the investment against a relevant benchmark and analyse your investment decisions.</p>
+              <ul>
+                <li>The CAGR Calculator is a simple, easy to use utility tool. All you must do is to enter the initial and final values along with the period of the investment. The calculator will show you the compound annual growth rate.</li>
+                <li>The CAGR calculator helps you to calculate the returns from your mutual fund investments. You can compare the mutual fund's average annual growth rate overtime against a benchmark. It allows you to choose the mutual fund based on past returns.</li>
+                <li>You can also compare the performance of stocks against the peers or the industry as a whole using the compound annual growth rate.</li>
+                <li>You may use the CAGR to determine how the investments in your portfolio have performed over some time.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span>Limitations of CAGR</span>
+            <span class="faq-arrow">⌄</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>Even though CAGR is a useful concept, it has some limitations. The following are some of the weaknesses of CAGR calculators:</p>
+              <ul>
+                <li>In calculations related to CAGR, only the beginning and ending values are taken into account. It assumes that growth is constant over the duration of time and does not consider the aspect of volatility.</li>
+                <li>It is suitable only for a lump-sum investment. In the case of SIP investments, the systematic investment at various time intervals is not considered as only the beginning value is taken into account for the calculation of CAGR.</li>
+                <li>CAGR does not account for the inherent risk of an investment. When it comes to equity investment, risk-adjusted returns are more important than CAGR. You must use Sharpe's Ratio and Treynor's Ratio to determine the risk-return reward of the investment.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p>Use this CAGR calculator to evaluate long-term investment growth, compare mutual funds or stocks against benchmarks, and make informed decisions based on true annualized returns. Start calculating now and choose investments that deliver consistent compounding power aligned with your financial goals.</p>
+    </div>
+
+  </div>
+
+<script>
+  const beginEl = document.getElementById('begin');
+  const endEl = document.getElementById('end');
+  const yearsEl = document.getElementById('years');
+  const outCagr = document.getElementById('out-cagr');
+  const outReturnPct = document.getElementById('out-return-pct');
+  const outReturnAmt = document.getElementById('out-return-amt');
+  const curvePath = document.getElementById('curvePath');
+  const curvePathFill = document.getElementById('curvePathFill');
+  const curveEnd = document.getElementById('curveEnd');
+
+  function fmtINR(n){
+    if(isNaN(n)) return '₹0';
+    const sign = n < 0 ? '-' : '';
+    n = Math.abs(n);
+    return sign + '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:0});
+  }
+
+  function updateCurve(cagr){
+    // Map cagr (%) roughly -20..40 to curve steepness, purely illustrative
+    const clamped = Math.max(-20, Math.min(40, cagr));
+    const endY = 54 - ((clamped + 20) / 60) * 50; // higher cagr -> lower endY (higher on chart)
+    const midY = (54 + endY) / 2 - 6;
+    const d = `M0,54 C60,${54 - (54-endY)*0.15},120,${midY},180,${endY + (endY<54?4:-4)} C210,${endY-4},240,${endY-2},260,${endY}`;
+    curvePath.setAttribute('d', d);
+    curvePathFill.setAttribute('d', d + ` L260,64 L0,64 Z`);
+    curveEnd.setAttribute('cy', endY);
+  }
+
+  function calculate(){
+    const begin = parseFloat(beginEl.value);
+    const end = parseFloat(endEl.value);
+    const years = parseFloat(yearsEl.value);
+
+    if(!begin || !end || !years || begin <= 0 || years <= 0){
+      outCagr.textContent = '—';
+      outReturnPct.textContent = '—';
+      outReturnAmt.textContent = '—';
+      return;
+    }
+
+    const cagr = (Math.pow(end / begin, 1 / years) - 1) * 100;
+    const returnPct = ((end - begin) / begin) * 100;
+    const returnAmt = end - begin;
+
+    outCagr.textContent = cagr.toFixed(2) + '%';
+    outReturnPct.textContent = returnPct.toFixed(2) + '%';
+    outReturnAmt.textContent = fmtINR(returnAmt);
+
+    updateCurve(cagr);
+  }
+
+  [beginEl, endEl, yearsEl].forEach(el => el.addEventListener('input', calculate));
+  calculate();
+
+  // ---- FAQ accordion ----
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    const answer = btn.nextElementSibling;
+
+    function setOpen(open){
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if(open){
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      } else {
+        answer.style.maxHeight = '0px';
+      }
+    }
+
+    // initialize based on markup (first item open by default)
+    setOpen(btn.getAttribute('aria-expanded') === 'true');
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+  });
+
+  // keep open panel height correct on window resize
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.faq-question[aria-expanded="true"]').forEach(btn => {
+      const answer = btn.nextElementSibling;
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    });
+  });
+</script>
+
+</body>
+</html>
